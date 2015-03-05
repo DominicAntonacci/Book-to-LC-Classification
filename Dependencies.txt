@@ -1,0 +1,12 @@
+This program was written in Python 2.7.
+
+It requires a few external libraries.
+bs4 - A library to help with parsing webpages
+requests - A library to request HTML pages via HTTP
+unicodedata - A library to convert unicode to ascii
+
+All of these are automatically installed with Anaconda Python.
+
+Users of Ubuntu can install them with
+sudo apt-get install python-bs4 python-requests python-unicodedata
+

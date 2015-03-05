@@ -1,11 +1,33 @@
+"""
+The MIT License (MIT)
+
+Copyright (c) 2015 Dominic Antonacci
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
+
 # Libraries to import
 from bs4 import BeautifulSoup, SoupStrainer
 import re
 import requests
 import os.path
 import unicodedata
-#from colorama import init, Fore, Back
-#init(autoreset=True)
 
 # User-defined functions
 
@@ -36,29 +58,6 @@ def validate_ISBN(input_string):
                "It should contain 10 or 13 characters."
     print "           Please try again."
     return False
-
-
-#def get_HTML_text(url):
-## Takes a given URL and converts it to a list of strings, where each element is the text in a field
-## Returns a list of strings with each element containing the text in a
-## HTML field
-##
-## Usage
-## data = get_HTML_text(url)
-##
-## Inputs:
-## url - a string URL to access
-## 
-## Outputs:
-## data - the resulting list of strings
-#
-#    # Get and parse the URL
-#    page = requests.get(url)
-#    soup = BeautifulSoup(page.text)
-#
-#    # Convert the text into a nice list of fields
-#    text = soup.get_text()
-#    return filter(None,text.split('\n'))
 
 def get_classify_info(page):
 # Attempts to parse a classify.oclc.org webpage and scrape the title,
@@ -213,7 +212,8 @@ def search_classify(ISBN):
     try: 
         page = requests.get(url)
     except requests.ConnectionError:
-        print "    ERROR: Unable to access website. Check your internet connection."
+        print "    ERROR: Unable to access website. "\
+                   "Check your internet connection."
         return '','',''
 
     # Attempt to get the book's information

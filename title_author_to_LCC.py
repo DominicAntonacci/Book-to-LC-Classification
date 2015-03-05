@@ -1,64 +1,42 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar 05 15:55:52 2015
+
+@author: Dominic
+"""
+
+"""
+The MIT License (MIT)
+
+Copyright (c) 2015 Dominic Antonacci
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
+
 # Libraries to import
 from bs4 import BeautifulSoup, SoupStrainer
 import re
 import requests
 import os.path
 import unicodedata
-#from colorama import init, Fore, Back
-#init(autoreset=True)
 
 # User-defined functions
-
-
-def validate_ISBN(input_string):
-# Checks the given input string to see if it is an ISBN number. 
-# Returns a boolean
-#
-# Usage
-# validate_ISBN(input_string) # returns boolean
-#
-# Inputs
-# input_string: the string to test
-#
-# Outputs
-# boolean if it is a ISBN
- 
-    # Verify the ISBN using regex
-    # The first regex checks for an ISBN10 number, which has 10 digits
-    # the last digit can be an x.
-    # The second regex checks for an ISBN13 number, with 13 digits and no
-    # special characters
-    if(bool(re.search(r'^\d{9}[\d|X]$', input_string, re.IGNORECASE)) or
-       bool(re.search(r'^\d{13}$', input_string)) ):
-           return True
-        
-    print "    ERROR: ISBN is not valid. " \
-               "It should contain 10 or 13 characters."
-    print "           Please try again."
-    return False
-
-
-#def get_HTML_text(url):
-## Takes a given URL and converts it to a list of strings, where each element is the text in a field
-## Returns a list of strings with each element containing the text in a
-## HTML field
-##
-## Usage
-## data = get_HTML_text(url)
-##
-## Inputs:
-## url - a string URL to access
-## 
-## Outputs:
-## data - the resulting list of strings
-#
-#    # Get and parse the URL
-#    page = requests.get(url)
-#    soup = BeautifulSoup(page.text)
-#
-#    # Convert the text into a nice list of fields
-#    text = soup.get_text()
-#    return filter(None,text.split('\n'))
 
 def get_classify_info(page):
 # Attempts to parse a classify.oclc.org webpage and scrape the title,
@@ -191,14 +169,39 @@ def validate_info(title, author, lcc):
 
     return len(title)!=0 and len(lcc)>3
 
+def title_author_search_url(title, author):
+# Generates a search URL for classify.oclc.org from the title and author.
+# An example URL is below
+# http://classify.oclc.org/classify2/ClassifyDemo?search-title-txt=a%20b%20c&
+# search-author-txt=d%20e%20f&startRec=0
+#
+# Usage
+# url = title_author_search_url(title, author)
+#
+# Inputs
+# title: string containing the title of the book
+# author: string containing the author of the book
+#
+# Outputs
+# url: string containing the URL
+    
+    # Constant parts of the URL    
+    beg_url = "http://classify.oclc.org/classify2/ClassifyDemo?"\
+              "search-title-txt="
+    middle_url = "&search-author-txt="
+    
+    # Convert the title and author spaces to be %20
+    title = title.replace(' ', '%20')
+    author = author.replace(' ', '%20')
+    
+    return beg_url + title + middle_url + author
 
-def search_classify(ISBN):
-# Searches classify.oclc.org for the specified ISBN. If it is not
-# found, then the title, author and LCC will be blank.
+def search_classify(title, author):
+# Searches classify.oclc.org for the specified title and author.
 #
 #
 # Usage
-# title, author, lcc = search_classify(ISBN)
+# title, author, lcc = search_classify(title, author)
 #
 # Inputs:
 # ISBN: a string containing the ISBN
@@ -209,11 +212,12 @@ def search_classify(ISBN):
 # lcc: string containing the LC classification of the book
 
     # Generate the URL and get webpage
-    url = cl_url_beg + ISBN + cl_url_end
+    url = title_author_search_url(title, author)
     try: 
         page = requests.get(url)
     except requests.ConnectionError:
-        print "    ERROR: Unable to access website. Check your internet connection."
+        print "    ERROR: Unable to access website. "\
+                   "Check your internet connection."
         return '','',''
 
     # Attempt to get the book's information
@@ -258,7 +262,7 @@ cl_url_end = "&startRec=0"
 search_url = "/classify2/ClassifyDemo?wi="
 
 # Name of the CSV file to save results to
-csv_file_name = "ISBNsLCC.csv"
+csv_file_name = "TitleAuthorLCC.csv"
 
 # Regex to limit an ISBN to have only the digits 0-9
 isbn10 = re.compile(r'^\d{9}[\d|X]$', re.IGNORECASE)
@@ -270,7 +274,7 @@ link_limit = 5 # -1 means there is no limit
 # Create the csv file if it doesn't already exist
 if(not os.path.isfile(csv_file_name)):
     csv_file = open(csv_file_name,'w', 1) #open file, and set to line buffering
-    csv_file.write('"ISBN","Call_Number"\n')
+    csv_file.write('"Title","Author","Call_Number"\n')
 else:
     csv_file = open(csv_file_name,'a', 1) # Set line buffering
     
@@ -278,20 +282,15 @@ else:
 while(1):
     
     # Request an ISBN number from the user, and clean it up
-    ISBN = raw_input("\nEnter ISBN: ")
-    ISBN = ''.join(ISBN.split()) #Remove all whitespace
-    ISBN = ISBN.replace("-","") #Remove all hyphens
+    title = raw_input("\nEnter title: ")
+    author = raw_input("Enter author: ")
     
     # Check if we should be done
-    if(ISBN == "exit"):
+    if(title == "exit"):
         break
-
-    # Verify the ISBN has a valid format, if not, break
-    if(not validate_ISBN(ISBN)):
-        continue
         
     # Try to get the book's information
-    title, author, lcc = search_classify(ISBN)
+    title, author, lcc = search_classify(title, author)
     
     # Check if the information was actually written
     if(not validate_info(title, author, lcc)):
@@ -300,7 +299,7 @@ while(1):
         continue
         
     # Save the information to the CSV file
-    csv_file.write('"'+ISBN+'","'+lcc+'"\n')
+    csv_file.write('"'+title+'","'+author+'","'+lcc+'"\n')
     csv_file.flush() #Force writing to the file (rather than buffering)
     
 csv_file.close()

@@ -25,7 +25,18 @@ THE SOFTWARE.
 
 from BookToLCC import *
 
-csv_file = open_isbn_csv("ISBNsLCC.csv")
+# Number of links to search through before giving up
+link_limit = 5
+
+while(1):
+    try:
+        csv_file = open_title_author_csv("ISBNsLCC.csv")
+        break
+    except IOError:
+        print 'ERROR: Unable to open CSV file. '\
+        'Check to see if it is open in another program or if you '\
+        'have permissions to modify it. \nPress enter to continue.'
+        raw_input()
     
 # Main Loop
 while(1):
@@ -44,7 +55,7 @@ while(1):
         continue
         
     # Try to get the book's information
-    title, author, lcc = search_classify(ISBN, 5)
+    title, author, lcc = search_classify(ISBN, link_limit)
     
     # Check if the information was actually written
     if(not validate_info(title, author, lcc)):

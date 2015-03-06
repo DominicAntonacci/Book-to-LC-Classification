@@ -25,14 +25,13 @@ THE SOFTWARE.
 
 from BookToLCC import *
 
-
-#Number of links to search through
+# Number of links to search through before giving up
 link_limit = 5
 
-# Open or create CSV file for editing
 while(1):
     try:
-        csv_file = open_title_author_csv("TitleAuthorLCC.csv")
+        title_csv = open_title_author_csv("TitleAuthorLCC.csv")
+        isbn_csv = open_isbn_csv("ISBNsLCC.csv")
         break
     except IOError:
         print 'ERROR: Unable to open CSV file. '\
@@ -44,24 +43,51 @@ while(1):
 while(1):
     
     # Request an ISBN number from the user, and clean it up
+    ISBN = raw_input("\nEnter ISBN: ")
+    ISBN = ''.join(ISBN.split()) #Remove all whitespace
+    ISBN = ISBN.replace("-","") #Remove all hyphens
+    
+    # Check if we should be done
+    if(ISBN == "exit"):
+        break
+
+    # Verify the ISBN has a valid format, if not, break
+    if(not validate_ISBN(ISBN)):
+        continue
+        
+    # Try to get the book's information
+    title, author, lcc = search_classify(ISBN, link_limit)
+    
+    # If the information is valid, save the info and continue
+    if(validate_info(title, author, lcc)):
+        # Save the information to the CSV file
+        isbn_csv.write('"'+ISBN+'","'+lcc+'"\n')
+        isbn_csv.flush() #Force writing to the file (rather than buffering)
+        continue
+    else:
+        print "    ISBN did not return any results. Try title and author\n"
+        
+    # Otherwise, prompt for title and author
     title = raw_input("\nEnter title: ")
     author = raw_input("Enter author: ")
     
     # Check if we should be done
     if(title == "exit"):
-        break
-        
-    # Try to get the book's information
+        break    
+    
     title, author, lcc = search_classify(title, author, link_limit)
     
     # Check if we actually got the book's information
-    if(not validate_info(title, author, lcc)):
-        print("    ERROR: ISBN did not return any results.")
-        print("           Try again, or set aside for later processing.")
-        continue
-        
-    # Save the information to the CSV file
-    csv_file.write('"'+title+'","'+author+'","'+lcc+'"\n')
-    csv_file.flush() #Force writing to the file (rather than buffering)
+    if(validate_info(title, author, lcc)):
+        title_csv.write('"'+title+'","'+author+'","'+lcc+'"\n')
+        title_csv.flush() #Force writing to the file (rather than buffering)
+        continue       
     
-csv_file.close()
+        print("    ERROR: Title and author did not return any results.")
+        print("           Try again, or set aside for later processing.")
+        
+
+    
+isbn_csv.close()
+title_csv.close()
+

@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 05 15:55:52 2015
-
-@author: Dominic
-"""
-
-"""
 The MIT License (MIT)
 
 Copyright (c) 2015 Dominic Antonacci

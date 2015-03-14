@@ -32,7 +32,7 @@ link_limit = 5
 # Open or create CSV file for editing
 while(1):
     try:
-        csv_file = open_title_author_csv("TitleAuthorLCC.csv")
+        csv_file = open_isbn_csv("TitleAuthorLCC.csv")
         break
     except IOError:
         print 'ERROR: Unable to open CSV file. '\
@@ -43,7 +43,7 @@ while(1):
 # Main Loop
 while(1):
     
-    # Request an ISBN number from the user, and clean it up
+    # Request an title and author from the user, and clean it up
     title = raw_input("\nEnter title: ")
     author = raw_input("Enter author: ")
     
@@ -56,12 +56,11 @@ while(1):
     
     # Check if we actually got the book's information
     if(not validate_info(title, author, lcc)):
-        print("    ERROR: ISBN did not return any results.")
+        print("    ERROR: Title and author did not return any results.")
         print("           Try again, or set aside for later processing.")
         continue
         
     # Save the information to the CSV file
-    csv_file.write('"'+title+'","'+author+'","'+lcc+'"\n')
-    csv_file.flush() #Force writing to the file (rather than buffering)
+    write_title_author_csv(title, author, lcc, csv_file)
     
 csv_file.close()

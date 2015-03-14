@@ -61,17 +61,16 @@ while(1):
     # If the information is valid, save the info and continue
     if(validate_info(title, author, lcc)):
         # Save the information to the CSV file
-        isbn_csv.write('"'+ISBN+'","'+lcc+'"\n')
-        isbn_csv.flush() #Force writing to the file (rather than buffering)
+	write_isbn_csv(ISBN, lcc, isbn_csv)
         continue
     else:
-        print "    ISBN did not return any results. Try title and author\n"
+        print "    ISBN did not return any results. Try the title and author."
         
     # Otherwise, prompt for title and author
     title = raw_input("\nEnter title: ")
     author = raw_input("Enter author: ")
     
-    # Check if we should be done
+    # Check if we should exit the program
     if(title == "exit"):
         break    
     
@@ -79,14 +78,11 @@ while(1):
     
     # Check if we actually got the book's information
     if(validate_info(title, author, lcc)):
-        title_csv.write('"'+title+'","'+author+'","'+lcc+'"\n')
-        title_csv.flush() #Force writing to the file (rather than buffering)
+	write_title_author_csv(title, author, lcc, title_csv);
         continue       
-    
+    else:
         print("    ERROR: Title and author did not return any results.")
-        print("           Try again, or set aside for later processing.")
-        
-
+        print("           Try again, or set aside for later processing.") 
     
 isbn_csv.close()
 title_csv.close()

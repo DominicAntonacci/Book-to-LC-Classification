@@ -64,7 +64,6 @@ while(1):
         continue
         
     # Save the information to the CSV file
-    csv_file.write('"'+ISBN+'","'+lcc+'"\n')
-    csv_file.flush() #Force writing to the file (rather than buffering)
+    write_isbn_csv(ISBN, lcc, csv_file)
     
 csv_file.close()

@@ -390,3 +390,49 @@ def search_classify(*args):
             
     # If I reach here, no valid box was found, return error
     return '','',''
+
+def write_title_author_csv(title, author, lcc, csv):
+# Writes the title and author to the next line of the CSV file.
+# It will first convert the unicode to ascii for display purposes,
+# and then write them to the file in the proper format.
+#
+# Usage
+# write_title_author_csv(title, author, lcc, csv)
+#
+# Inputs
+# title: string holding the title
+# author: string holding the author
+# lcc: string holding the Library of Congress Classification
+# csv: CSV opened or created by open_title_author_csv
+#
+# Warning
+# This function does not verify that you are writing to the
+# title_author_csv file. It simply will append to that file
+
+    # Convert title and author to ascii equivalents
+    title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore')
+    author = unicodedata.normalize('NFKD', author).encode('ascii', 'ignore')
+
+    # Write to the file
+    csv.write('"'+title+'","'+author+'","'+lcc+'"\n')
+    csv.flush() #Force writing to the file (rather than buffering)
+
+def write_isbn_csv(ISBN, lcc, csv):
+# Writes the ISBN and LCC to the ISBN csv file. Currently, no extra
+# processing is done for the file.
+#
+# Usage
+# write_isbn_csv(ISBN, lcc, csv)
+#
+# Inputs
+# ISBN: string containing the ISBN
+# lcc: string containing the Library of Congress Classification
+# csv: file object returned by open_isbn_csv
+#
+# Warning
+# This function does not verify that you are writing to the isbn_csv file.
+# It will simply append to that file.
+
+    # Save the information to the CSV file
+    csv.write('"'+ISBN+'","'+lcc+'"\n')
+    csv.flush() #Force writing to the file (rather than buffering)

@@ -227,7 +227,8 @@ def get_classify_search_links(page):
     
 def user_validation(title,author,lcc):
 # Requests the user to validate the search's results. Returns a boolean
-# based off the users response.
+# based off the users response. It also detects when a user enters in
+# another book and forces them to validate the old information
 #
 # Usage
 # user_validation(title, author, lcc) #Returns number
@@ -241,9 +242,14 @@ def user_validation(title,author,lcc):
 # True if user validates the info, false otherwise
 
     # Convert any unicode characters from title and author to ascii
-    title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore')
-    author = unicodedata.normalize('NFKD', author).encode('ascii', 'ignore')
-    
+    try:
+        title = unicodedata.normalize('NFKD', title). \
+                            encode('ascii', 'ignore')
+        author = unicodedata.normalize('NFKD', author). \
+                             encode('ascii', 'ignore')
+    except TypeError:
+        pass
+        
     # Display the titlem author and LCC
     print("\n    Title: "+title)
     print("\n    Author: "+author)
@@ -256,11 +262,21 @@ def user_validation(title,author,lcc):
     
     query = query.lower()
     # Read user input, and act on it
-    if(query != "" and query != 'y' and query != 'yes'):
+    # If the query indicated yes, return true
+    if(query == "" or query == 'y' or query == 'yes'):
+        return True
+        
+    # If it seems like the user tried to enter a new book, catch and respond
+    elif(len(query) > 3):
+        print("\nERROR: It appears as though you forgot to validate " \
+                "the book!\n" \
+                "       Please re-verify the information.")
+        raw_input("Press enter to continue...")
+        return user_validation(title, author, lcc)
+        
+    else:
         print "    User indicated incorrect data. Data was not saved.\n"
         return False
-    
-    return True
     
 def validate_info(title, author, lcc):
 # Attempts to validate the data returned by a search.

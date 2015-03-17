@@ -452,3 +452,29 @@ def write_isbn_csv(ISBN, lcc, csv):
     # Save the information to the CSV file
     csv.write('"'+ISBN+'","'+lcc+'"\n')
     csv.flush() #Force writing to the file (rather than buffering)
+    
+def get_num_copies():
+# Prompts the user for a how many copies of a book is present. It then
+# returns that number. It will also error check to ensure the input is valid.
+#
+# Usage
+# num_copies = get_num_copies()
+#
+# Outputs
+# num_copies: integer holding the number of copies
+    
+    # Get the input
+    num_copies = raw_input("How many copies? ")
+    # Basic error checking: make sure it is a number between 1 and 999
+    if(not num_copies.isdigit()):
+        print("    ERROR: Copies should be an integer")
+        return get_num_copies()
+    num_copies = int(num_copies)
+    
+    if(num_copies < 1 or num_copies > 999):
+        print("    ERROR: Copies should be between 1 and 999")
+        return get_num_copies()
+        
+    return num_copies
+        
+    
